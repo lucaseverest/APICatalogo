@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APICatalogo.Context;
 using APICatalogo.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APICatalogo.Controllers
 {
@@ -23,6 +24,7 @@ namespace APICatalogo.Controllers
 
         // GET: api/Categorias
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetCategorias()
         {
             return await _context.Categorias.ToListAsync();

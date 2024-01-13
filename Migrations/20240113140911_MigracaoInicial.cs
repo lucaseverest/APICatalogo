@@ -17,8 +17,8 @@ namespace APICatalogo.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Nome = table.Column<string>(type: "TEXT", nullable: true),
-                    ImgUrl = table.Column<string>(type: "TEXT", nullable: true)
+                    Nome = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Descricao = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,12 +29,11 @@ namespace APICatalogo.Migrations
                 name: "Produtos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nome = table.Column<string>(type: "TEXT", nullable: true),
-                    Descricao = table.Column<string>(type: "TEXT", nullable: true),
-                    Preco = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ImgUrl = table.Column<string>(type: "TEXT", nullable: true),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    Nome = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Descricao = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Preco = table.Column<decimal>(type: "decimal(10,2)", precision: 14, scale: 2, nullable: false),
+                    ImgUrl = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     Estoque = table.Column<float>(type: "REAL", nullable: false),
                     DataCadastro = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CategoriaId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -43,17 +42,12 @@ namespace APICatalogo.Migrations
                 {
                     table.PrimaryKey("PK_Produtos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Produtos_Categorias_CategoriaId",
-                        column: x => x.CategoriaId,
+                        name: "FK_Produtos_Categorias_Id",
+                        column: x => x.Id,
                         principalTable: "Categorias",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Produtos_CategoriaId",
-                table: "Produtos",
-                column: "CategoriaId");
         }
 
         /// <inheritdoc />

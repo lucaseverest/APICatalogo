@@ -17,15 +17,15 @@ namespace APICatalogo.Models
         public string? Nome { get; set; }
         [Required]
         [StringLength(300)]
-        public string? ImgUrl { get; set; }
+        public string? Descricao { get; set; }
         [JsonIgnore]
         public ICollection<Produto>? Produtos { get; set; }
 
-        public Categoria(int id, string nome, string imgUrl)
+        public Categoria(int id, string nome, string descricao)
         {
             Id = id;
             Nome = nome;
-            ImgUrl = imgUrl;
+            Descricao = descricao;
         }
     }
 }

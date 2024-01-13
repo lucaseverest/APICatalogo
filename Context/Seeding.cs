@@ -14,9 +14,9 @@ namespace APICatalogo.Context
         {
             if (_context.Categorias.Any() || _context.Produtos.Any()) return;
 
-            Categoria c1 = new Categoria(1, "Carros", "Carro.png");
-            Categoria c2 = new Categoria(2, "Bikes", "Bikes.png");
-            Categoria c3 = new Categoria(3, "Imoveis", "Imoveis.png");
+            Categoria c1 = new Categoria(1, "Carros", "Carros irados");
+            Categoria c2 = new Categoria(2, "Bikes", "Bikes brabas");
+            Categoria c3 = new Categoria(3, "Imoveis", "Varias Casas");
 
             Produto p1 = new Produto(1, "Ford", "carrão", 10, "carrao.png", 2, new DateTime(), 1);
             Produto p2 = new Produto(2, "Ford", "carrão", 10, "carrao.png", 2, new DateTime(), 1);

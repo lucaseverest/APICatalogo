@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APICatalogo.Context;
 using APICatalogo.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APICatalogo.Controllers
 {
@@ -23,6 +24,7 @@ namespace APICatalogo.Controllers
 
         // GET: api/Produtos
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()
         {
             return await _context.Produtos.ToListAsync();

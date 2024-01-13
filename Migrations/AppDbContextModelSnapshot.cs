@@ -23,9 +23,9 @@ namespace APICatalogo.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ImgUrl")
+                    b.Property<string>("Descricao")
                         .IsRequired()
-                        .HasMaxLength(300)
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Nome")
@@ -41,7 +41,6 @@ namespace APICatalogo.Migrations
             modelBuilder.Entity("APICatalogo.Models.Produto", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("CategoriaId")
@@ -52,7 +51,7 @@ namespace APICatalogo.Migrations
 
                     b.Property<string>("Descricao")
                         .IsRequired()
-                        .HasMaxLength(300)
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<float>("Estoque")
@@ -60,7 +59,7 @@ namespace APICatalogo.Migrations
 
                     b.Property<string>("ImgUrl")
                         .IsRequired()
-                        .HasMaxLength(300)
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Nome")
@@ -69,11 +68,10 @@ namespace APICatalogo.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Preco")
+                        .HasPrecision(14, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoriaId");
 
                     b.ToTable("Produtos");
                 });
@@ -82,7 +80,7 @@ namespace APICatalogo.Migrations
                 {
                     b.HasOne("APICatalogo.Models.Categoria", "Categoria")
                         .WithMany("Produtos")
-                        .HasForeignKey("CategoriaId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
