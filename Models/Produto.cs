@@ -16,8 +16,8 @@ namespace APICatalogo.Models
         [StringLength(300)]
         public string? Descricao { get; set; }
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Preco { get; set; }
+        [Column(TypeName = "float")]
+        public float Preco { get; set; }
         [Required]
         [StringLength(300)]
         public string? ImgUrl { get; set; }
@@ -32,7 +32,7 @@ namespace APICatalogo.Models
             throw new NotImplementedException();
         }
 
-        public Produto(int id, string nome, string descricao, decimal preco, string imgUrl, float estoque, DateTime dataCadastro, int categoriaId)
+        public Produto(int id, string nome, string descricao, float preco, string imgUrl, float estoque, DateTime dataCadastro, int categoriaId)
         {
             Id = id;
             Nome = nome;
