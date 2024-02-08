@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using APICatalogo.Context;
 using APICatalogo.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace APICatalogo.Controllers
 {
+    [EnableQuery]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriasController : ControllerBase

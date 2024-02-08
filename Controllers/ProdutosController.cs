@@ -111,16 +111,16 @@ namespace APICatalogo.Controllers
 
         // DELETE: api/Produtos/5
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduto(int id)
+        public async Task<IActionResult> DeleteProduto(int id)
         {
-            var produto = _uof.ProdutoRepository.GetById(p => p.Id == id);
+            var produto = await _uof.ProdutoRepository.GetById(p => p.Id == id);
             if (produto == null)
             {
                 return NotFound();
             }
 
             _uof.ProdutoRepository.Delete(produto);
-            _uof.Commit();
+            await _uof.Commit();
 
             return NoContent();
         }
