@@ -13,6 +13,7 @@ using AutoMapper;
 using APICatalogo.DTOs;
 using APICatalogo.Pagination;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace APICatalogo.Controllers
 {
@@ -49,18 +50,22 @@ namespace APICatalogo.Controllers
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
 
-            var produtosDTO = _mapper.Map<List<ProdutoDTO>>(produtos);
+            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
-            return produtosDTO;
+            return Ok(produtosDTO);
         }
 
-        [HttpGet("menorpreco")]
-        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosPreco()
+        [HttpGet("produtos/{id}")]
+        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosCategoria(int id)
         {
-            var produtos = _uof.ProdutoRepository.GetProdutosPorPreco().ToList();
-            var produtosDTO = _mapper.Map<List<ProdutoDTO>>(produtos);
+            var produtos = _uof.ProdutoRepository.GetProdutosPorCategoria(id);
 
-            return produtosDTO;
+            if (produtos is null)
+                return NotFound();
+
+            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+
+            return Ok(produtosDTO);
         }
 
         // GET: api/Produtos/5
@@ -96,6 +101,42 @@ namespace APICatalogo.Controllers
             return Ok();
         }
 
+        [HttpPatch("{id}/UpdatePartial")]
+        public ActionResult<ProdutoDTOUpdateResponse> Patch(int id,
+        JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDto)
+        {
+            //valida input 
+            if (patchProdutoDto == null || id <= 0)
+                return BadRequest();
+
+            //obtem o produto pelo Id
+            var produto = _uof.ProdutoRepository.GetById(c => c.Id == id);
+
+            //se não econtrou retorna
+            if (produto == null)
+                return NotFound();
+
+            //mapeia produto para ProdutoDTOUpdateRequest
+            var produtoUpdateRequest = _mapper.Map<ProdutoDTOUpdateRequest>(produto);
+
+            //aplica as alterações definidas no documento JSON Patch ao objeto ProdutoDTOUpdateRequest
+            patchProdutoDto.ApplyTo(produtoUpdateRequest, ModelState);
+
+            if (!ModelState.IsValid || !TryValidateModel(produtoUpdateRequest))
+                return BadRequest(ModelState);
+
+            // Mapeia as alterações de volta para a entidade Produto
+            _mapper.Map(produtoUpdateRequest, produto);
+
+            // Atualiza a entidade no repositório
+            _uof.ProdutoRepository.Update(produto);
+            // Salve as alterações no banco de dados
+            _uof.Commit();
+
+            //retorna ProdutoDTOUpdateResponse
+            return Ok(_mapper.Map<ProdutoDTOUpdateResponse>(produto));
+        }
+
         // POST: api/Produtos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -113,7 +154,7 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduto(int id)
         {
-            var produto = await _uof.ProdutoRepository.GetById(p => p.Id == id);
+            var produto = _uof.ProdutoRepository.GetById(p => p.Id == id);
             if (produto == null)
             {
                 return NotFound();

@@ -15,19 +15,20 @@ namespace APICatalogo.Repository
             _context = contexto;
         }
 
-        public IQueryable<T> Get()
+        public IEnumerable<T> Get()
         {
-            return _context.Set<T>().AsNoTracking();
+            return _context.Set<T>().AsNoTracking().ToList();
         }
 
-        public async Task<T> GetById(Expression<Func<T, bool>> predicate)
+        public T? GetById(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().AsNoTracking().SingleOrDefaultAsync(predicate);
+            return _context.Set<T>().FirstOrDefault(predicate);
         }
 
-        public void Add(T entity)
+        public T Add(T entity)
         {
             _context.Set<T>().Add(entity);
+            return entity;
         }
 
         public void Delete(T entity)
@@ -35,10 +36,10 @@ namespace APICatalogo.Repository
             _context.Set<T>().Remove(entity);
         }
 
-        public void Update(T entity)
+        public T Update(T entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
             _context.Set<T>().Update(entity);
+            return entity;
         }
     }
 }

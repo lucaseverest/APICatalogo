@@ -12,9 +12,9 @@ namespace APICatalogo.Repository
         {
         }
 
-        public IEnumerable<Produto> GetProdutosPorPreco()
+        public IEnumerable<Produto> GetProdutosPorCategoria(int id)
         {
-            return Get().OrderBy(c => c.Preco);
+            return Get().Where(c => c.CategoriaId == id);
         }
         public PagedList<Produto> GetProdutos(ProdutosParameters produtosParameters)
         {

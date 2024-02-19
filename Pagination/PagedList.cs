@@ -1,4 +1,6 @@
-﻿namespace APICatalogo.Pagination;
+﻿using APICatalogo.Models;
+
+namespace APICatalogo.Pagination;
 
 public class PagedList<T> : List<T>
 {
@@ -26,5 +28,10 @@ public class PagedList<T> : List<T>
         var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
         return new PagedList<T>(items, count, pageNumber, pageSize);
+    }
+
+    internal static PagedList<Produto> ToPagedList(IOrderedEnumerable<Produto> produtos, int pageNumber, int pageSize)
+    {
+        throw new NotImplementedException();
     }
 }
