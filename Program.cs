@@ -3,9 +3,11 @@ using APICatalogo.DTOs.Mappings;
 using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.Logging;
+using APICatalogo.Models;
 using APICatalogo.Repository;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -64,23 +66,63 @@ builder.Services.AddScoped<ApiLoggingFilter>();
 
 builder.Services.AddScoped<Seeding>();
 
-builder.Services.AddSingleton<ITokenService>(new TokenService());
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().
+    AddEntityFrameworkStores<AppDbContext>().
+    AddDefaultTokenProviders();
+
+builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    // Default Password settings.
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 5;
+    options.Password.RequiredUniqueChars = 1;
+});
+
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+var secretKey = builder.Configuration["JWT:SecretKey"]
+                   ?? throw new ArgumentException("Invalid secret key!!");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey
-                         (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        ClockSkew = TimeSpan.Zero,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+                           Encoding.UTF8.GetBytes(secretKey))
     };
 });
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("SuperAdminOnly", policy =>
+                       policy.RequireRole("Admin").RequireClaim("id", "admin"));
+
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+
+    options.AddPolicy("ExclusiveOnly", policy =>
+                      policy.RequireAssertion(context =>
+                      context.User.HasClaim(claim =>
+                                           claim.Type == "id" && claim.Value == "admin")
+                                           || context.User.IsInRole("SuperAdmin")));
+});
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -101,7 +143,7 @@ if (app.Environment.IsDevelopment())
     using (var serviceScope = app.Services.CreateScope())
     {
         var services = serviceScope.ServiceProvider;
-        services.GetRequiredService<Seeding>().Seed();
+        await services.GetRequiredService<Seeding>().Seed();
     }
 }
 

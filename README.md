@@ -31,6 +31,6 @@ Update-Database
 
 <p>To start the project without debugging press Ctrl + F5 </p>
 
-<p>Login: lucas	| Password: 123456</p>
+<p>Login: admin	| Password: admin</p>
 
 The application Swagger can be accessed at [`localhost:7148/swagger/index.html`](https://localhost:7148/swagger/index.html).

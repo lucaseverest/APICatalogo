@@ -1,13 +1,13 @@
 ﻿using APICatalogo.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Context
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
-        public AppDbContext()
-        {
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        { }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options.UseSqlite($"Data Source=APICatalogo.db");
 
@@ -33,6 +33,8 @@ namespace APICatalogo.Context
                 .HasOne<Categoria>(c => c.Categoria)
                     .WithMany(p => p.Produtos)
                         .HasForeignKey(c => c.Id);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

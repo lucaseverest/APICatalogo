@@ -33,22 +33,33 @@ namespace APICatalogo.Controllers
 
         // GET: api/Produtos
         [HttpGet]
-        [Authorize]
-        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutos([FromQuery] ProdutosParameters produtosParameters)
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
         {
-            var produtos = _uof.ProdutoRepository.GetProdutos(produtosParameters);
+            var produtos = await _uof.ProdutoRepository.Get();
+            if (produtos is null)
+                return NotFound();
+
+            var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+            return Ok(produtosDto);
+        }
+
+        [HttpGet("pagination")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutos([FromQuery] ProdutosParameters produtosParameters)
+        {
+            var produtos = await _uof.ProdutoRepository.GetProdutos(produtosParameters);
             var metadata = new
             {
-                produtos.TotalCount,
+                produtos.Count,
                 produtos.PageSize,
-                produtos.CurrentPage,
-                produtos.TotalPages,
-                produtos.HasNext,
-                produtos.HasPrevious
+                produtos.PageCount,
+                produtos.TotalItemCount,
+                produtos.HasNextPage,
+                produtos.HasPreviousPage
 
             };
 
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
 
             var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
@@ -56,9 +67,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("produtos/{id}")]
-        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosCategoria(int id)
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosCategoria(int id)
         {
-            var produtos = _uof.ProdutoRepository.GetProdutosPorCategoria(id);
+            var produtos = await _uof.ProdutoRepository.GetProdutosPorCategoria(id);
 
             if (produtos is null)
                 return NotFound();
@@ -70,9 +81,9 @@ namespace APICatalogo.Controllers
 
         // GET: api/Produtos/5
         [HttpGet("{id}")]
-        public ActionResult<ProdutoDTO> GetProduto(int id)
+        public async Task<ActionResult<ProdutoDTO>> GetProduto(int id)
         {
-            var produto = _uof.ProdutoRepository.GetById(p => p.Id == id);
+            var produto = await _uof.ProdutoRepository.GetById(p => p.Id == id);
 
             if (produto == null)
             {
@@ -102,7 +113,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPatch("{id}/UpdatePartial")]
-        public ActionResult<ProdutoDTOUpdateResponse> Patch(int id,
+        public async Task<ActionResult<ProdutoDTOUpdateResponse>> Patch(int id,
         JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDto)
         {
             //valida input 
@@ -110,7 +121,7 @@ namespace APICatalogo.Controllers
                 return BadRequest();
 
             //obtem o produto pelo Id
-            var produto = _uof.ProdutoRepository.GetById(c => c.Id == id);
+            var produto = await _uof.ProdutoRepository.GetById(c => c.Id == id);
 
             //se não econtrou retorna
             if (produto == null)
@@ -154,7 +165,7 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduto(int id)
         {
-            var produto = _uof.ProdutoRepository.GetById(p => p.Id == id);
+            var produto = await _uof.ProdutoRepository.GetById(p => p.Id == id);
             if (produto == null)
             {
                 return NotFound();

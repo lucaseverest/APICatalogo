@@ -1,10 +1,14 @@
-﻿using APICatalogo.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
-namespace APICatalogo.Services
+namespace APICatalogo.Services;
+
+public interface ITokenService
 {
-    public interface ITokenService
-    {
-        string GerarToken(string key, string issuer, string audience, UserModel user);
+    JwtSecurityToken GenerateAccessToken(IEnumerable<Claim> claims,
+                                         IConfiguration _config);
+    string GenerateRefreshToken();
 
-    }
+    ClaimsPrincipal GetPrincipalFromExpiredToken(string token,
+                                                 IConfiguration _config);
 }

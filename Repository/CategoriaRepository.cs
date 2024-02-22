@@ -1,7 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using APICatalogo.Pagination;
+using X.PagedList;
 
 namespace APICatalogo.Repository
 {
@@ -9,6 +9,21 @@ namespace APICatalogo.Repository
     {
         public CategoriaRepository(AppDbContext contexto) : base(contexto)
         {
+        }
+
+        public async Task<IPagedList<Categoria>> GetCategorias(CategoriasParameters categoriasParameters)
+        {
+            var categorias = await Get();
+
+            // OrderBy síncrono
+            var categoriasOrdenadas = categorias.OrderBy(p => p.Id).ToList();
+
+            //var resultado =  PagedList<Categoria>.ToPagedList(categoriasOrdenadas,
+            //                         categoriasParams.PageNumber, categoriasParams.PageSize);
+            var resultado = await categoriasOrdenadas.ToPagedListAsync(categoriasParameters.PageNumber,
+                                                                       categoriasParameters.PageSize);
+
+            return resultado;
         }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using APICatalogo.DTOs;
 using APICatalogo.Models;
+using APICatalogo.Pagination;
 using APICatalogo.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace APICatalogo.Controllers;
 
@@ -27,9 +30,32 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<CategoriaDTO>> Get()
+    public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
     {
-        var categorias = _uof.CategoriaRepository.Get();
+        var categorias = await _uof.CategoriaRepository.Get();
+
+        var categoriasDTO = _mapper.Map<IEnumerable<CategoriaDTO>>(categorias);
+
+        return Ok(categoriasDTO);
+    }
+
+    [HttpGet("pagination")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategorias([FromQuery] CategoriasParameters categoriasParameters)
+    {
+        var categorias = await _uof.CategoriaRepository.GetCategorias(categoriasParameters);
+        var metadata = new
+        {
+            categorias.Count,
+            categorias.PageSize,
+            categorias.PageCount,
+            categorias.TotalItemCount,
+            categorias.HasNextPage,
+            categorias.HasPreviousPage
+
+        };
+
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
 
         var categoriasDTO = _mapper.Map<IEnumerable<CategoriaDTO>>(categorias);
 
@@ -37,9 +63,9 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet("{id:int}", Name = "ObterCategoria")]
-    public ActionResult<Categoria> Get(int id)
+    public async Task<ActionResult<Categoria>> Get(int id)
     {
-        var categoria = _uof.CategoriaRepository.GetById(c => c.Id == id);
+        var categoria = await _uof.CategoriaRepository.GetById(c => c.Id == id);
 
         if (categoria is null)
         {
@@ -91,9 +117,9 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var categoria = _uof.CategoriaRepository.GetById(c => c.Id == id);
+        var categoria = await _uof.CategoriaRepository.GetById(c => c.Id == id);
 
         if (categoria is null)
         {
@@ -102,7 +128,7 @@ public class CategoriasController : ControllerBase
         }
 
         _uof.CategoriaRepository.Delete(categoria);
-        _uof.Commit();
+        await _uof.Commit();
 
         return Ok();
 

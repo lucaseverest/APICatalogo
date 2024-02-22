@@ -6,8 +6,8 @@ namespace APICatalogo.Repository
 {
     public interface IRepository<T>
     {
-        IEnumerable<T> Get();
-        T? GetById(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> Get();
+        Task<T?> GetById(Expression<Func<T, bool>> predicate);
         T Add(T entity);
         T Update(T entity);
         void Delete(T entity);

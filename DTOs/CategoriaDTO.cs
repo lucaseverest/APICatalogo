@@ -4,7 +4,7 @@ namespace APICatalogo.DTOs;
 
 public class CategoriaDTO
 {
-    public int CategoriaId { get; set; }
+    public int Id { get; set; }
 
     //Essas anotações são usadas para garantir que os dados inseridos no DTO CategoriaDTO
     //atendam a certos critérios de validação, como serem obrigatórios e terem comprimentos
@@ -16,6 +16,6 @@ public class CategoriaDTO
 
     [Required]
     [StringLength(300)]
-    public string? ImagemUrl { get; set; }
+    public string? Descricao { get; set; }
 
 }

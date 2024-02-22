@@ -1,16 +1,23 @@
-﻿using APICatalogo.Models;
+﻿using APICatalogo.DTOs;
+using APICatalogo.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace APICatalogo.Context
 {
     public class Seeding
     {
         private AppDbContext _context;
-        public Seeding(AppDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public Seeding(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public void Seed()
+        public async Task Seed()
         {
             if (_context.Categorias.Any() || _context.Produtos.Any()) return;
 
@@ -25,6 +32,26 @@ namespace APICatalogo.Context
             _context.Categorias.AddRange(c1, c2, c3);
             _context.Produtos.AddRange(p1, p2, p3);
             _context.SaveChanges();
+
+            _ = await _roleManager.CreateAsync(new IdentityRole("Admin"));
+            _ = await _roleManager.CreateAsync(new IdentityRole("User"));
+
+
+            ApplicationUser user = new()
+            {
+                Email = "admin@admin.com",
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = "admin"
+            };
+
+            var admin = await _userManager.CreateAsync(user, "admin");
+
+            if (admin != null)
+            {
+                _ = await _userManager.AddToRoleAsync(user, "Admin");
+                return;
+            }
+
         }
     }
 }
