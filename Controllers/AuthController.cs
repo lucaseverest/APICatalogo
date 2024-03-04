@@ -105,8 +105,16 @@ public class AuthController : ControllerBase
         return BadRequest(new { error = "Unable to find user" });
     }
 
+    /// <summary>
+    /// Verifica as credenciais de um usuário
+    /// </summary>
+    /// <param name="model">Um objeto do tipo UsuarioDTO</param>
+    /// <returns>Status 200 e o token para o cliente</returns>
+    /// <remarks>Retorna o Status 200 e o token </remarks> 
     [HttpPost]
     [Route("login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         var user = await _userManager.FindByNameAsync(model.UserName!);

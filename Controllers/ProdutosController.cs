@@ -19,6 +19,8 @@ namespace APICatalogo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiConventionType(typeof(DefaultApiConventions))]
+
     public class ProdutosController : ControllerBase
     {
         private readonly IUnitOfWork _uof;
@@ -66,6 +68,11 @@ namespace APICatalogo.Controllers
             return Ok(produtosDTO);
         }
 
+        /// <summary>
+        /// Obtem o produto pelo seu identificador id
+        /// </summary>
+        /// <param name="id">Código do produto</param>
+        /// <returns>Um objeto Produto</returns>
         [HttpGet("produtos/{id}")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosCategoria(int id)
         {
